@@ -1,0 +1,207 @@
+---
+title: 'Einfache statistische Analyse von Finanzinstrumenten'
+author: "Alexander Hofstätter (alex@hofstaetter.io)"
+date: '03.04.2018'
+output:
+  pdf_document: default
+---
+
+```{r setup, cache=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+library(knitr)
+#if (output=="html") opts_chunk$set(fig.width=11, fig.height=11)
+options(scipen=8)
+options("getSymbols.yahoo.warning"=FALSE)
+options("getSymbols.warning4.0"=FALSE)
+read_chunk("portfolio.R")
+```
+
+```{r init, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+```
+
+Nachfolgend soll ein Portfolio mit 3 Finanzinstrumenten gebildet werden und deren Kurse anhand relevanter statistischer Kennzahlen verglichen. Weiters sollen Empfehlungen und Investitionsentscheidungen abgeleitet werden.
+
+Folgende Instrumente wurden dabei gewählt und analysiert. Die Daten wurden über die `R`-Schnitstelle von Yahoo Finance bezogen.
+
+```{r echo = FALSE, results = 'asis'}
+kable(table)
+``` 
+
+```{r kurse-und-renditen, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+```
+
+## Kurse
+
+Nachfolgend sind die Kurse der ausgewählten Titel im Zeitverlauf seit `r start` grafisch dargstellt.
+
+```{r plot-kurse, fig.width = 14, fig.height = 6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results='hide'}
+```
+
+\newpage
+
+## Renditen
+
+Die hier verwendete diskrete Rendite basiert auf Basis der relativen Wertänderungen zwischen zwei aufeinanderfolgenden Zeitpunkten ($t{-}1$ und $t$).
+$$ r_t = \frac{p_t-p_{t-1}}{p_{t-1}} $$
+
+Diese Berechnung entspricht einer diskreten Verzinsung des Kapitals, Zinsen werden dem Kapital in bestimmten zeitlichen Abständen zugeschrieben. 
+
+
+```{r plot-renditen, fig.width = 14, fig.height = 12, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results='hide'}
+```
+
+\newpage
+
+## Empirische Eigenschaften von Renditen
+
+### Boxplots
+
+```{r plot-boxplot, fig.width = 12, fig.height = 5, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, comment=NA, results='hide'}
+
+```
+
+### Dichteverteilung
+```{r plot-dichte, fig.width = 12, fig.height = 4, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, comment=NA, results='hide'}
+
+```
+
+\newpage
+### `r namen[1]` (`r instrumente[1]`)
+
+```{r analyse1, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, comment=NA}
+R <- na.omit(r[[1]])
+```
+
+**Quantile**  
+*`r namen[1]`* weist ein arithmetisches Mittel von `r mean(R)`, eine Varianz von `r var(R)` und eine Standardabweichung von `r sqrt(var(R))` auf.
+
+Der Median (`r median(R)`) und die empirischen Quantile liegen wie folgt. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, comment=">"}
+quantile(R)
+```
+
+Seit Beginn der Beobachtungen (`r start`) betrug daher der maximale Verlust zwischen zwei Handelstagen `r paste(round(100*quantile(R)["0%"], 4), "%", sep="")` und der maximale Gewinn `r paste(round(100*quantile(R)["100%"], 4), "%", sep="")`.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, comment=">"}
+quantile(R, c(0.05, 0.95))
+```
+
+Betrachtet man die statistisch interessanten 5% und 95% Quantile, so kann man daraus schließen, dass man an den schlechtesten 5% der betrachteten Tage mindestens `r paste(round(100*quantile(R, c(0.05, 0.95))["5%"], 4), "%", sep="")` Verlust und an den besten 5% der Tage mindestens `r paste(round(100*quantile(R, c(0.05, 0.95))["95%"], 4), "%", sep="")` Gewinn gemacht hätte.
+
+**Schiefe**  
+Mithilfe der Quantile kann man auf den Schiefekoeffizient schließen. Die Schiefe beschreibt als Indikator bzw. Maßzahl die Symmetrie eines Histogramms. Dieser beträgt für *`r namen[1]`*: $SK = `r sk(R)`$. Die Verteilung ist daher linksschief, woraus sich ableiten lässt, dass der Anteil negativer Renditen überwiegt und die Renditeverteilung mehr negative als positive Ausreißer hat.
+
+**Wölbung**  
+Ein weiteres Maß für die Beurteilung der Form eines Histogramm ist die Wölbung (oder Kurtosis). Der Wölbungskoeffizient ($WK$) einer Normalverteilung beträgt 1.34. Die Verteilung hat längere Enden als eine Normalverteilung wenn $WK < 1.34$ (leptokurtisch; oder auch Hochgipfeligkeit), die Werte finden sich daher eher an den Ausläufen und weniger um den Mittelwert herum. Sei hingegen $WK > 1.34$, so hat die Verteilung kürzere Enden als eine Normalverteilung (platykurtisch; oder auch Flachgipfeligkeit).
+
+Der Wölbungskoeffizient der *`r namen[1]`* Aktie beträgt $WK = `r wk(R)`$.
+
+\newpage
+### `r namen[2]` (`r instrumente[2]`)
+
+```{r analyse2, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, comment=NA}
+R <- na.omit(r[[2]])
+```
+
+**Quantile**  
+*`r namen[2]`* weist ein arithmetisches Mittel von `r mean(R)`, eine Varianz von `r var(R)` und eine Standardabweichung von `r sqrt(var(R))` auf.
+
+Der Median (`r median(R)`) und die empirischen Quantile liegen wie folgt. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, comment=">"}
+quantile(R)
+```
+
+Seit Beginn der Beobachtungen (`r start`) betrug daher der maximale Verlust zwischen zwei Handelstagen `r paste(round(100*quantile(R)["0%"], 4), "%", sep="")` und der maximale Gewinn `r paste(round(100*quantile(R)["100%"], 4), "%", sep="")`.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, comment=">"}
+quantile(R, c(0.05, 0.95))
+```
+
+Betrachtet man die statistisch interessanten 5% und 95% Quantile, so kann man daraus schließen, dass man an den schlechtesten 5% der betrachteten Tage mindestens `r paste(round(100*quantile(R, c(0.05, 0.95))["5%"], 4), "%", sep="")` Verlust und an den besten 5% der Tage mindestens `r paste(round(100*quantile(R, c(0.05, 0.95))["95%"], 4), "%", sep="")` Gewinn gemacht hätte. Im Vergleich mit der *`r namen[1]`* Aktie kann hier bereits eine größere Volatilität festgestellt werden. Der Varianzvergleich bestätigt diese Feststellung. Dies hat zur Folge dass der maximal erreichbare Gewinn, aber auch der maximal erzielbare Verlust höher sind. Im relativen Vergleich ist diese Aktie also eher in einem Portfolio eines risikoneutralen Investors zu finden.  
+
+**Schiefe**  
+Der Schiefekoeffizient beträgt für *`r namen[2]`*: $SK = `r sk(R)`$. Die Verteilung ist somit rechtsschief. Daraus lässt sich ableiten, dass der Anteil positiver Renditen überwiegt und die Renditeverteilung mehr positive als negative Ausreißer enthält. Es ist davon auszugehen, dass eine rechtschiefe Verteilung einem Investor eher zusagen wird als eine linksschiefe (überwiegend negative Verteilung).
+
+**Wölbung**  
+Der Wölbungskoeffizient der *`r namen[2]`* Aktie beträgt $WK = `r wk(R)`$, somit ist die Verteilung leptokurtisch und hat längere Enden als eine Glockenkurve.
+
+\newpage
+### `r namen[3]` (`r instrumente[3]`)
+
+```{r analyse3, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, comment=NA}
+R <- na.omit(r[[3]])
+```
+
+**Quantile**  
+Die *`r namen[3]`* Aktie weist ein arithmetisches Mittel von `r mean(R)`, eine Varianz von `r var(R)` und eine Standardabweichung von `r sqrt(var(R))` auf.
+
+Der Median (`r median(R)`) und die empirischen Quantile liegen wie folgt. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, comment=">"}
+quantile(R)
+```
+
+Seit Beginn der Beobachtungen (`r start`) betrug daher der maximale Verlust zwischen zwei Handelstagen `r paste(round(100*quantile(R)["0%"], 4), "%", sep="")` und der maximale Gewinn `r paste(round(100*quantile(R)["100%"], 4), "%", sep="")`.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, comment=">"}
+quantile(R, c(0.05, 0.95))
+```
+
+Betrachtet man die statistisch interessanten 5% und 95% Quantile, so kann man daraus schließen, dass man an den schlechtesten 5% der betrachteten Tage mindestens `r paste(round(100*quantile(R, c(0.05, 0.95))["5%"], 4), "%", sep="")` Verlust und an den besten 5% der Tage mindestens `r paste(round(100*quantile(R, c(0.05, 0.95))["95%"], 4), "%", sep="")` Gewinn gemacht hätte.
+
+**Schiefe**  
+Der Schiefekoeffizient beträgt für *`r namen[3]`*: $SK = `r sk(R)`$. Die Verteilung ist somit rechtsschief. Daraus lässt sich ableiten, der Anteil positiver Renditen überwiegt.
+
+**Wölbung**  
+Der Wölbungskoeffizient der *`r namen[3]`* Aktie beträgt $WK = `r wk(R)`$, somit ist auch diese Verteilung leptokurtisch.
+
+\newpage
+### Normalverteilung
+
+```{r plot-normalverteilung, fig.width = 12, fig.height = 4, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, comment=NA, results='hide'}
+
+```
+
+**Jarque Bera Test**  
+Eine Überprüfung der Normalverteilung der Residuen kann u.a. mit dem Jarque Bera Test durchgeführt werden. Dieser Test untersucht sowohol Wölbung als auch Schiefe und beruht auf der Nullhypothese der Normalverteilung. Die Teststatistik JB ist $\chi^2$-verteilt mit zwei Freiheitsgraden.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, comment=">"}
+Nestle <- na.omit(r[[1]])
+jarque.bera.test(Nestle)
+jb2 <- jarque.bera.test(na.omit(r[[2]]))$statistic
+jb3 <- jarque.bera.test(na.omit(r[[3]]))$statistic
+```
+
+Repräsentativ für die Renditen aller untersuchen Aktien wurde ein JB Test am Beispiel der `r namen[1]` (`r instrumente[1]`) Aktie durchgeführt.
+
+Die Werte der Teststatistiken aller anderen Renditendaten sind ebenfalls signifikant (Für `r namen[2]`: $\chi^2 = `r format(jb2,digits=0)`$; für `r namen[3]`: $\chi^2 = `r format(jb3,digits=0)`$). Die p-Werte sind daher alle nahezu 0. Daraus folgt, dass die Null-Hypothese der Normalverteilung für alle untersuchten Verteilungen der Renditen verworfen wird.
+
+Aus vorhergehenden Grafiken, statistischen Werten sowie dem Jarque Bera Test lässt sich also mit Sicherheit schließen, dass die untersuchten Renditen nicht normalverteilt sind. 
+
+## Korrelation
+Zuletzt kann noch betrachtet werden, wie stark die verschiedenen Kurse im Zeitverlauf voneinander abhängig sind, bzw. sich gegenseitig beeinflussen oder von den selben Faktoren beinflusst werden. Nachfolgend ist auch der Korrelationskoeffizient (c) angegeben.
+
+```{r plot-korrelation, fig.width = 12, fig.height = 4, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, comment=NA, results='hide'}
+
+```
+
+Da die Korrelationskoeffizienten alle nahe bei 1 sind ist ein starker Zusammenhang gegeben.
+
+## Conclusio
+Abhängig von der Risikoaversität des Investors können unterschiedliche Ansätze zur Zusammenstellung eines Portfolios gewählt werden. Der maximale Gewinn (`r paste(round(100*max(r[[1]],r[[2]],r[[3]], na.rm=TRUE), 4), "%", sep="")`) zwischen 2 Handelstagen hätte mit der Aktie *`r namen[2]`* erzielt werden können, allerdings auch der maximale Verlust (`r paste(round(100*min(r[[1]],r[[2]],r[[3]], na.rm=TRUE), 4), "%", sep="")`). 
+
+Ein risikoaverser Invester würde vermutlich eine weniger volatile Aktie bevorzugen. Die geringste Volatilität (minimalste Varianz) unter den untersuchten Titeln weist die *`r namen[1]`* auf.
+
+Ein Investor hätte mit der *`r namen[1]`* maximal `r paste(round(100*min(r[[1]], na.rm=TRUE), 4), "%", sep="")` Verlust und am besten Tag `r paste(round(100*max(r[[1]], na.rm=TRUE), 4), "%", sep="")` Gewinn verbuchen können. Weiters ist zu erkennen, dass jene Aktie mit der geringsten Varianz, auch jene mit der geringsten Volatilität ist.
+
+In der Portfoliotheorie betrachtet man es eher als ineffizient wenn mehrere Titel im Portfolio einen stark positiven Zusammenhang haben, da aufgrund der Abhängigkeit,  keine Risikostreuung vorgenommen wird.
+
+|   |`r namen[1]`|`r namen[2]`|`r namen[3]`|
+|---|---|---|---|
+|$\mu$      |`r mean(na.omit(r[[1]]))`|`r mean(na.omit(r[[2]]))`|`r mean(na.omit(r[[3]]))`|
+|$\sigma^2$ |`r var(na.omit(r[[1]]))` |`r var(na.omit(r[[2]]))` |`r var(na.omit(r[[3]]))`|
+|$SK$       |`r sk(na.omit(r[[1]]))`  |`r sk(na.omit(r[[2]]))`  |`r sk(na.omit(r[[3]]))`|
+|$WK$       |`r wk(na.omit(r[[1]]))`  |`r wk(na.omit(r[[2]]))`  |`r wk(na.omit(r[[3]]))`|
+
+Source: [github.com/alexanderhofstaetter/R-simple-statistic-portfolio-analysis](https://github.com/alexanderhofstaetter/R-simple-statistic-portfolio-analysis).
