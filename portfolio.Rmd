@@ -1,6 +1,7 @@
 ---
 title: 'Einfache statistische Analyse von Finanzinstrumenten'
-author: "Alexander Hofstätter (alex@hofstaetter.io)"
+subtitle: "Wirtschaftsuniversität Wien"
+author: "Alexander Hofstätter (alexander.hofstaetter@s.wu.ac.at)"
 date: '03.04.2018'
 output:
   pdf_document: default
